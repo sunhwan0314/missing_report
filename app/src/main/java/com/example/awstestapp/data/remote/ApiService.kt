@@ -2,6 +2,7 @@ package com.example.awstestapp.data.remote
 
 import com.example.awstestapp.data.remote.dto.CreateAnimalRequestDto
 import com.example.awstestapp.data.remote.dto.CreatePersonRequestDto
+import com.example.awstestapp.data.remote.dto.CreateSightingRequestDto
 import com.example.awstestapp.data.remote.dto.RegisterRequestDto
 import com.example.awstestapp.data.remote.dto.PostListItemDto
 import com.example.awstestapp.data.remote.dto.UserDto // UserDto import 추가
@@ -27,13 +28,13 @@ interface ApiService {
     // 최신 실종자 목록을 가져오는 API
     @GET("/api/missing-persons")
     suspend fun getMissingPersons(
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int? // [수정] Int? 로 변경하여 null을 허용
     ): List<PostListItemDto>
 
     // 최신 실종 동물 목록을 가져오는 API
     @GET("/api/missing-animals")
     suspend fun getMissingAnimals(
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int? // [수정] Int? 로 변경하여 null을 허용
     ): List<PostListItemDto>
     @POST("/api/auth/register")
     suspend fun registerUser(@Body requestBody: RegisterRequestDto)
@@ -70,4 +71,26 @@ interface ApiService {
     @GET("/api/sightings/all")
     suspend fun getAllSightings(): List<SightingDto>
 
+
+    @GET("/api/users/me/posts")
+    suspend fun getMyPosts(@Header("Authorization") token: String): List<PostListItemDto>
+
+    @POST("/api/missing-persons/{id}/sightings")
+    suspend fun createPersonSighting(
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int,
+        @Body request: CreateSightingRequestDto
+    )
+
+    @POST("/api/missing-animals/{id}/sightings")
+    suspend fun createAnimalSighting(
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int,
+        @Body request: CreateSightingRequestDto
+    )
+    @GET("/api/missing-persons/{id}/sightings")
+    suspend fun getPersonSightings(@Path("id") postId: Int): List<SightingDto>
+
+    @GET("/api/missing-animals/{id}/sightings")
+    suspend fun getAnimalSightings(@Path("id") postId: Int): List<SightingDto>
 }

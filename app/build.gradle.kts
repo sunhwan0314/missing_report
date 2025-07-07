@@ -125,5 +125,8 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:4.3.3")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
 
-
+// [새로 추가] Firebase Realtime Database 라이브러리
+    implementation("com.google.firebase:firebase-database-ktx")
+    // [새로 추가] LiveData를 Compose State로 변환해주는 라이브러리
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
 }

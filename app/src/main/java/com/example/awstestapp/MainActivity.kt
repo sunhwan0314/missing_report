@@ -23,6 +23,12 @@ import com.example.awstestapp.ui.viewmodel.SplashViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.example.awstestapp.ui.screens.DetailScreen
 import com.example.awstestapp.ui.screens.EditPostScreen
+import com.example.awstestapp.ui.screens.PersonListScreen // 추가
+import com.example.awstestapp.ui.screens.AnimalListScreen
+import com.example.awstestapp.ui.screens.ChatListScreen
+import com.example.awstestapp.ui.screens.ChatRoomScreen
+import com.example.awstestapp.ui.screens.CreateSightingScreen
+import com.example.awstestapp.ui.screens.MapSelectionScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -86,7 +92,41 @@ class MainActivity : ComponentActivity() {
                     ) {
                         EditPostScreen(navController = navController)
                     }
-
+                    composable(Screen.PersonList.route) {
+                        PersonListScreen(navController = navController)
+                    }
+                    composable(Screen.AnimalList.route) {
+                        AnimalListScreen(navController = navController)
+                    }
+                    composable(Screen.ChatList.route) {
+                        ChatListScreen(navController = navController)
+                    }
+                    composable(
+                        route = Screen.ChatRoom.route,
+                        arguments = listOf(navArgument("roomId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val roomId = backStackEntry.arguments?.getString("roomId") ?: ""
+                        ChatRoomScreen(navController = navController, roomId = roomId)
+                    }
+                    // [새로 추가] 목격담 작성 화면 경로
+                    composable(
+                        route = Screen.CreateSighting.route,
+                        arguments = listOf(
+                            navArgument("postType") { type = NavType.StringType },
+                            navArgument("postId") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val postType = backStackEntry.arguments?.getString("postType") ?: ""
+                        val postId = backStackEntry.arguments?.getInt("postId") ?: 0
+                        CreateSightingScreen(
+                            navController = navController,
+                            postType = postType,
+                            postId = postId
+                        )
+                    }
+                    composable("map_selection") {
+                        MapSelectionScreen(navController = navController)
+                    }
                 }
             }
         }

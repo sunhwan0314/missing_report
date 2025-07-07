@@ -25,23 +25,8 @@ class HomeRepositoryImpl(private val apiService: ApiService) : HomeRepository {
             Result.failure(e)
         }
     }
-    override suspend fun getPersonDetail(postId: Int): Result<PostDetailDto> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getPersonDetail(postId)
-            Result.success(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
 
-    override suspend fun getAnimalDetail(postId: Int): Result<PostDetailDto> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getAnimalDetail(postId)
-            Result.success(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+
     override suspend fun deletePost(postType: String, postId: Int, idToken: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val tokenHeader = "Bearer $idToken"
@@ -55,5 +40,4 @@ class HomeRepositoryImpl(private val apiService: ApiService) : HomeRepository {
             Result.failure(e)
         }
     }
-
 }

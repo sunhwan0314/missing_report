@@ -2,16 +2,21 @@ package com.example.awstestapp.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-// 서버의 /api/missing-persons, /api/missing-animals 목록 API 응답을 위한 데이터 클래스
+// 서버의 모든 '목록' API 응답을 처리할 수 있는 최종 데이터 모델
 data class PostListItemDto(
     val id: Int,
-    @SerializedName("missing_person_name") // JSON의 키 이름과 변수 이름이 다를 때 사용
+    val type: String?, // "person" 또는 "animal"
+
+    // [수정] 서버의 personName, animalName 키와 정확히 일치시킴
+    @SerializedName("personName")
     val personName: String?,
-    @SerializedName("animal_name")
+
+    @SerializedName("animalName")
     val animalName: String?,
-    @SerializedName("age_at_missing")
-    val age: Int?,
-    val breed: String?,
+
+    // age_at_missing, breed 등 다른 필드들은 상세보기에만 필요하므로,
+    // 목록 DTO에서는 제외하거나, 서버 응답에 맞춰 추가할 수 있습니다.
+    // 지금은 목록 표시에 필요한 최소한의 정보만 포함합니다.
     val last_seen_location: String,
     val main_photo_url: String?,
     val created_at: String

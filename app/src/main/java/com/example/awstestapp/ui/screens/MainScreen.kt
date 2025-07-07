@@ -33,7 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 import com.example.awstestapp.ui.screens.MapScreen
-import com.example.awstestapp.ui.screens.ChatScreen
+import com.example.awstestapp.ui.screens.ChatListScreen
 import com.example.awstestapp.ui.screens.MyProfileScreen
 
 @Composable
@@ -108,7 +108,7 @@ fun BottomNavGraph(bottomNavController: NavHostController, mainNavController: Na
             MapScreen(navController = mainNavController)
         }
         composable(BottomNavItem.Chat.screenRoute) {
-            ChatScreen(navController = mainNavController)
+            ChatListScreen(navController = mainNavController)
         }
         composable(BottomNavItem.MyProfile.screenRoute) {
             MyProfileScreen(mainNavController = mainNavController)

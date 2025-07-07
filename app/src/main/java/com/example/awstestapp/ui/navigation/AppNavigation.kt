@@ -12,9 +12,18 @@ sealed class Screen(val route: String) {
         // 실제 이동할 때 사용할 URL을 쉽게 만들어주는 함수
         fun createRoute(postType: String, postId: Int) = "detail_screen/$postType/$postId"
     }
-
+    object PersonList : Screen("person_list_screen")
+    object AnimalList : Screen("animal_list_screen")
     // [새로 추가] 수정 화면 경로. 어떤 게시물을 수정할지 ID를 전달받음
     object EditPost : Screen("edit_post_screen/{postType}/{postId}") {
         fun createRoute(postType: String, postId: Int) = "edit_post_screen/$postType/$postId"
     }
+    object ChatList : Screen("chat_list_screen")
+    object ChatRoom : Screen("chat_room_screen/{roomId}") { // 어떤 채팅방인지 ID를 전달받음
+        fun createRoute(roomId: String) = "chat_room_screen/$roomId"
+    }
+    object CreateSighting : Screen("create_sighting_screen/{postType}/{postId}") {
+        fun createRoute(postType: String, postId: Int) = "create_sighting_screen/$postType/$postId"
+    }
+    object MapSelection : Screen("MapSelectionScreen")
 }

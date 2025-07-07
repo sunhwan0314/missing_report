@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.awstestapp.data.remote.dto.CreatePersonRequestDto // 재사용
 import com.example.awstestapp.data.remote.dto.PostDetailDto
 import com.example.awstestapp.domain.repository.CreatePostRepository
+import com.example.awstestapp.domain.repository.DetailRepository
 import com.example.awstestapp.domain.repository.HomeRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ data class EditPostUiState(
 )
 
 class EditPostViewModel(
-    private val homeRepository: HomeRepository, // 기존 데이터 로드용
+
+    private val detailRepository: DetailRepository, // 기존 데이터 로드용
     private val createPostRepository: CreatePostRepository, // 데이터 업데이트용
     private val auth: FirebaseAuth,
     savedStateHandle: SavedStateHandle
@@ -41,7 +43,7 @@ class EditPostViewModel(
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            val result = if (postType == "person") homeRepository.getPersonDetail(postId) else homeRepository.getAnimalDetail(postId)
+            val result = if (postType == "person") detailRepository.getPersonDetail(postId) else detailRepository.getAnimalDetail(postId)
             result.onSuccess { postDetail ->
                 _uiState.update { it.copy(isLoading = false, post = postDetail) }
             }.onFailure { error ->

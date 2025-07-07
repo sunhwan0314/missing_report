@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.awstestapp.data.remote.dto.CreateAnimalRequestDto
 import com.example.awstestapp.data.remote.dto.CreatePersonRequestDto
 import com.example.awstestapp.ui.viewmodel.EditPostViewModel
 import org.koin.androidx.compose.getViewModel

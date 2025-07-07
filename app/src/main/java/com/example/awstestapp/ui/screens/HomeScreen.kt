@@ -2,19 +2,18 @@ package com.example.awstestapp.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.example.awstestapp.data.remote.dto.PostListItemDto
 import com.example.awstestapp.ui.navigation.Screen
@@ -24,95 +23,119 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = koinViewModel() // Koin으로 ViewModel 주입
+    viewModel: HomeViewModel = koinViewModel()
+
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val lifecycleOwner = LocalLifecycleOwner.current
-// [새로 추가] HomeScreen의 생명주기를 관찰하는 부분
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            // 화면이 다시 활성화될 때 (onResume) 데이터를 새로고침합니다.
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.fetchHomeData()
-            }
-        }
 
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        // 화면이 사라질 때 observer를 정리합니다.
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // 1. 로딩 중일 때
+
         if (uiState.isLoading) {
             CircularProgressIndicator()
-        }
-        // 2. 에러가 발생했을 때
-        else if (uiState.errorMessage != null) {
+        } else if (uiState.errorMessage != null) {
             Text(text = "데이터를 불러오는데 실패했습니다: ${uiState.errorMessage}")
-        }
-        // 3. 성공적으로 데이터를 불러왔을 때
-        else {
-            // LazyColumn은 화면에 보이는 부분만 렌더링하여 성능을 최적화합니다.
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp)
+        } else {
+            // 세로 스크롤이 가능한 Column으로 전체를 감쌉니다.
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                // "최근 실종자" 섹션
-                item {
-                    Text("최근 실종자", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(bottom = 8.dp))
-                }
-                items(uiState.missingPersons) { person ->
-                    PostCard(post = person, onClick = {
-                        // "person" 타입의 "person.id" 게시물로 이동하라고 명령
-                        navController.navigate(Screen.Detail.createRoute("person", person.id))
-                    })
-                }
+                // "최근 실종자" 대시보드 섹션
+                DashboardSection(
+                    title = "최근 실종자",
+                    items = uiState.missingPersons,
+                    onMoreClicked = { navController.navigate(Screen.PersonList.route) },
+                    onItemClicked = { personId ->
+                        navController.navigate(Screen.Detail.createRoute("person", personId))
+                    }
+                )
 
-                item {
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // "최근 실종 동물" 섹션
-                item {
-                    Text("최근 실종 동물", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(bottom = 8.dp))
-                }
-                items(uiState.missingAnimals) { animal ->
-                    PostCard(post = animal, onClick = {
-                        // "animal" 타입의 "animal.id" 게시물로 이동하라고 명령
-                        navController.navigate(Screen.Detail.createRoute("animal", animal.id))
-                    })
-                }
+                // "최근 실종 동물" 대시보드 섹션
+                DashboardSection(
+                    title = "최근 실종 동물",
+                    items = uiState.missingAnimals,
+                    onMoreClicked = { navController.navigate(Screen.AnimalList.route) },
+                    onItemClicked = { animalId ->
+                        navController.navigate(Screen.Detail.createRoute("animal", animalId))
+                    }
+                )
             }
         }
     }
 }
 
-// 각 게시물을 보여주는 카드 UI
+// 대시보드의 각 섹션을 그리는 Composable
 @Composable
-fun PostCard(post: PostListItemDto, onClick: () -> Unit) {
+fun DashboardSection(
+    title: String,
+    items: List<PostListItemDto>,
+    onMoreClicked: () -> Unit,
+    onItemClicked: (Int) -> Unit
+) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        // 섹션 헤더 (제목 + 더보기 버튼)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = title, style = MaterialTheme.typography.headlineSmall)
+            TextButton(onClick = onMoreClicked) {
+                Text("더보기 >")
+            }
+        }
+
+        // 가로 스크롤 목록
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(vertical = 8.dp)
+        ) {
+            items(items) { post ->
+                // 미리보기용 작은 카드
+                PreviewPostCard(post = post, onClick = { onItemClicked(post.id) })
+            }
+        }
+    }
+}
+
+// 미리보기용 작은 카드 UI
+@Composable
+fun PreviewPostCard(post: PostListItemDto, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable(onClick = onClick), // Card 전체를 클릭할 수 있도록 수정
+            .width(150.dp) // 카드의 가로 크기 지정
+            .clickable(onClick = onClick)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // 이름 표시 (사람 이름이 없으면 동물 이름 표시)
-            Text(
-                text = post.personName ?: post.animalName ?: "이름 없음",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "마지막 목격 장소: ${post.last_seen_location}",
-                style = MaterialTheme.typography.bodyMedium
-            )
+        Column {
+            // TODO: 여기에 Coil을 사용한 이미지 추가
+            Box(
+                modifier = Modifier
+                    .height(100.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text("사진 영역", modifier = Modifier.align(Alignment.Center))
+            }
+
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = post.personName ?: post.animalName ?: "이름 없음",
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = post.last_seen_location,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
