@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.awstestapp.data.remote.dto.SightingDto
 import com.example.awstestapp.domain.repository.MapRepository
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 // 지도 화면의 UI 상태
 data class MapUiState(
@@ -29,6 +31,21 @@ class MapViewModel(
     }
 
     private fun fetchAllSightings() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+            mapRepository.getAllSightings()
+                .onSuccess { sightingList ->
+                    _uiState.update {
+                        it.copy(isLoading = false, sightings = sightingList)
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
+                }
+        }
+    }
+    fun loadData() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 

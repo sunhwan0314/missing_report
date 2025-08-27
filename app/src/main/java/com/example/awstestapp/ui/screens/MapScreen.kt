@@ -58,6 +58,9 @@ fun MapScreen(
         }
         markers = markerList
     }
+    LaunchedEffect(key1 = Unit) {
+        viewModel.loadData()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (uiState.isLoading) {

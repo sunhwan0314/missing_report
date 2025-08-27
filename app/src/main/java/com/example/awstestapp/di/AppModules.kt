@@ -15,7 +15,7 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-private const val API_BASE_URL = "http://3.34.133.110:3000" // 본인의 EC2 IP
+private const val API_BASE_URL = "http://15.164.213.121:3000" // 본인의 EC2 IP
 
 // 데이터 소스, 네트워킹, Repository 관련 모듈
 val dataModule = module {
